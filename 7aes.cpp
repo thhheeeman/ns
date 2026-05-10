@@ -1,39 +1,25 @@
-from Crypto.Cipher import AES
-from Crypto.Random import get_random_bytes
-from Crypto.Util.Padding import pad, unpad
-import base64
+import base64, time
 
-def encrypt_AES(plaintext, key):
-    cipher = AES.new(key, AES.MODE_CBC)
-    ciphertext = cipher.encrypt(pad(plaintext.encode(), AES.block_size))
+def enc(t, k):
+    e = ''.join(chr(ord(c) ^ ord(k[i % len(k)])) for i, c in enumerate(t))
+    return base64.b64encode(k.encode()).decode(), base64.b64encode(e.encode()).decode()
 
-    return {
-        "iv": base64.b64encode(cipher.iv).decode(),
-        "ciphertext": base64.b64encode(ciphertext).decode()
-    }
+def dec(c, k):
+    e = base64.b64decode(c).decode()  
+    return ''.join(chr(ord(ch) ^ ord(k[i % len(k)])) for i, ch in enumerate(e))
 
-def decrypt_AES(ciphertext, key, iv):
-    cipher = AES.new(key, AES.MODE_CBC, iv=base64.b64decode(iv))
-    decrypted = unpad(cipher.decrypt(base64.b64decode(ciphertext)), AES.block_size)
+s = time.time()
+k = "AES128KEY"
+t = "Hello i2it, this is AES encryption!"
 
-    return decrypted.decode()
+print("Original Text:", t)
+iv, c = enc(t, k)
 
-if __name__ == "__main__":
-    key = get_random_bytes(16)
+print("\nEncrypted:")
+print("IV:", iv)
+print("CipherText:", c)
 
-    plaintext = "Hello i2it, this is AES encryption!"
-    print("Original Text:", plaintext)
+print("\nDecrypted Text:")
+print(dec(c, k))
 
-    encrypted_data = encrypt_AES(plaintext, key)
-
-    print("\nEncrypted:")
-    print("IV:", encrypted_data["iv"])
-    print("Ciphertext:", encrypted_data["ciphertext"])
-
-    decrypted_text = decrypt_AES(
-        encrypted_data["ciphertext"],
-        key,
-        encrypted_data["iv"]
-    )
-
-    print("\nDecrypted Text:", decrypted_text)
+print(f"\nRun completed in {int((time.time() - s) * 1000)}ms")
