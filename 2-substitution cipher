@@ -1,29 +1,47 @@
-#include <iostream>
-#include <string>
+#include <bits/stdc++.h>
 using namespace std;
 
-string encrypt(string text, int s) {
-    string result = "";
+int main() {
+    string all_letrs = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-    for (int i = 0; i < text.length(); i++) {
-        if (isupper(text[i])) {
-            result += char(int(text[i] + s - 65) % 26 + 65);
-        }
-        else {
-            result += char(int(text[i] + s - 97) % 26 + 97);
+    map<char, char> dict1;
+    int key = 4;
+
+    for (int i = 0; i < all_letrs.length(); i++) {
+        dict1[all_letrs[i]] = all_letrs[(i + key) % all_letrs.length()];
+    }
+
+    string plain_txt = "I am studying in i2it";
+    string cipher_txt = "";
+
+    for (char &c : plain_txt) {
+        if (dict1.find(c) != dict1.end()) {
+            cipher_txt += dict1[c];
+        } else {
+            cipher_txt += c;
         }
     }
 
-    return result;
-}
+    cout << "Cipher Text is: " << cipher_txt << endl;
 
-int main() {
-    string text = "ADARSHPARJANE";
-    int s = 4;
+    map<char, char> dict2;
+    for (int i = 0; i < all_letrs.length(); i++) {
+        int index = (i - key) % (int)all_letrs.length();
+        if (index < 0) index += all_letrs.length();
+        dict2[all_letrs[i]] = all_letrs[index];
+    }
 
-    cout << "Text : " << text;
-    cout << "\nShift: " << s;
-    cout << "\nCipher: " << encrypt(text, s);
+    string decrypt_txt = "";
+
+    for (char &c : cipher_txt) {
+        if (dict2.find(c) != dict2.end()) {
+            decrypt_txt += dict2[c];
+        } else {
+            decrypt_txt += c;
+        }
+    }
+
+    cout << "Recovered plain text : " << decrypt_txt << endl;
 
     return 0;
 }
